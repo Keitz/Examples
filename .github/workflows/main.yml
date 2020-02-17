@@ -20,8 +20,5 @@ jobs:
         run: |
           ./jfrog rt dp batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo keitz --build-name=docker-build --build-number=1 --skip-login=true
           # Collect environment variables for the build
-          ./jfrog rt bce
-          # Collect VCS details from git and add them to the build
-          ./jfrog rt bag
           # Publish build info
           ./jfrog rt bp docker-build 1
