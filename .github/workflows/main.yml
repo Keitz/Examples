@@ -1,0 +1,16 @@
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    # Connect to Artifacctory via the CLI
+    - uses: jfrog/setup-jfrog-cli@v1.0.3
+      env:
+        JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY_SECRET }}
+    - run: |
+        docker login batelt-keitz.jfrog.io -u ${{ secrets.JF_ARTIFACTORY_USER }} -p ${{ secrets.JF_ARTIFACTORY_PASSWORD }}
+        docker build . -t demo.azurecr.io/k8sdemo:latest
+        docker push demo.azurecr.io/k8sdemo:latest
