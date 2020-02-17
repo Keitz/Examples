@@ -8,7 +8,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Setup JFrog CLI
-        uses: jfrog/setup-jfrog-cli@v1
+        run: |
+          curl -uadmin:${{ secrets. JF_ARTIFACTORY_PASSWORD}} -O "https://batelt.jfrog.io/artifactory/art7/jfrog"
         env:
           JF_ARTIFACTORY_SERVER: ${{ secrets. JF_ARTIFACTORY_SECRET}}
       - name: Build the docker images
