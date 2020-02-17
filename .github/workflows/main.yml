@@ -10,18 +10,15 @@ jobs:
       - name: Setup JFrog CLI
         run: |
           curl -uadmin:${{ secrets. JF_ARTIFACTORY_PASSWORD}} -O "https://batelt.jfrog.io/artifactory/art7/jfrog"
-          ls -ll
-        env:
-          JF_ARTIFACTORY_SERVER: ${{ secrets. JF_ARTIFACTORY_SECRET}}
+          chmod +x jfrog
+          ./jfrog rt c import ${{ secrets. JF_ARTIFACTORY_SECRET}}
       - name: Build the docker images
         run: |
           docker login batelt-keitz.jfrog.io -u ${{ secrets. JF_ARTIFACTORY_USER}} -p ${{ secrets. JF_ARTIFACTORY_PASSWORD}}
           docker build . -t  batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo
-          ls -ll
-          chmod +x jfrog
       - name: Run JFrog CLI
         run: |
-          ./jfrog rt dp batelt-keitz.jfrog.io/keitz/ubuntu:latest keitz --build-name=docker-build --build-number=1 --skip-login
+          ./jfrog rt dp batelt-keitz.jfrog.io/keitz/ubuntu:latest keitz --build-name=docker-build --build-number=1 --skip-login=true
           # Collect environment variables for the build
           ./jfrog rt bce
           # Collect VCS details from git and add them to the build
