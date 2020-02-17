@@ -11,11 +11,12 @@ jobs:
         uses: jfrog/setup-jfrog-cli@v1
         env:
           JF_ARTIFACTORY_SERVER: ${{ secrets. JF_ARTIFACTORY_SECRET}}
-      - name: Run JFrog CLI
+      - name: Build the docker images
         run: |
+          docker --version
           docker login batelt-keitz.jfrog.io -u ${{ secrets. JF_ARTIFACTORY_USER}} -p ${{ secrets. JF_ARTIFACTORY_PASSWORD}}
           docker build . -t  batelt-keitz.jfrog.io/demo.azurecr.io/k8sdemo
-          docker push batelt-keitz.jfrog.io/demo.azurecr.io/k8sdemo
+          docker push batelt-keitz.jfrog.io/demo.azurecr.io/k8sdemo 
       - name: Run JFrog CLI
         run: |
           # Collect environment variables for the build
