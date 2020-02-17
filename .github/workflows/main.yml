@@ -17,6 +17,7 @@ jobs:
           docker --version
           docker login batelt-keitz.jfrog.io -u ${{ secrets. JF_ARTIFACTORY_USER}} -p ${{ secrets. JF_ARTIFACTORY_PASSWORD}}
           docker build . -t  batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo
+          chmod +x jfrog
           ./jfrog rt dp batelt-keitz.jfrog.io/keitz/ubuntu:latest keitz --build-name=docker-build --build-number=1 --skip login
       - name: Run JFrog CLI
         run: |
