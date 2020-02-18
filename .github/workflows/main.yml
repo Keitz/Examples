@@ -18,8 +18,8 @@ jobs:
           docker build . -t  batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo
       - name: Run JFrog CLI
         run: |
-          ./jfrog rt dp batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo keitz --build-name=Keitz_build --build-number=${{ github.run_id }} --skip-login=true
+          ./jfrog rt dp batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo keitz --build-name=Keitz_build --build-number=${{ github.run_number }} --skip-login=true
           # Collect environment variables for the build
-          ./jfrog rt bce Keitz_build ${{ github.run_id }}
+          ./jfrog rt bce Keitz_build ${{ github.run_number }}
           # Publish build info
-          ./jfrog rt bp Keitz_build ${{ github.run_id }}
+          ./jfrog rt bp Keitz_build ${{ github.run_number }}
