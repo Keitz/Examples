@@ -3,7 +3,7 @@ on: push
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -15,39 +15,23 @@ jobs:
       - name: Build the docker images
         run: |
           docker login batelt-keitz.jfrog.io -u ${{ secrets. JF_ARTIFACTORY_USER}} -p ${{ secrets. JF_ARTIFACTORY_PASSWORD}}
-          docker build . -t  batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo:${{ github.sha }}
+          docker build . -t  batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo
+         # Set the target AKS cluster.  
+
+      - uses: azure/aks-set-context@v1 
+
+        with: 
+
+          creds: '${{ secrets.AZURE_CREDENTIALS }}' 
+
+          cluster-name: AKSdemo 
+  
+          resource-group: shirispire 
+    
       - name: Run JFrog CLI
         run: |
-          ./jfrog rt dp batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo:${{ github.sha }} keitz --build-name=Keitz_build --build-number=${{ github.run_number }} --skip-login=true
+          ./jfrog rt dp batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo keitz --build-name=Keitz_build --build-number=${{ github.run_number }} --skip-login=true
           # Collect environment variables for the build
           ./jfrog rt bce Keitz_build ${{ github.run_number }}
           # Publish build info
           ./jfrog rt bp Keitz_build ${{ github.run_number }}
-          
-    # Set the target AKS cluster. 
-      - uses: azure/aks-set-context@v1
-        with:
-          creds: '${{ secrets.AZURE_CREDENTIALS }}'
-          cluster-name: desattir
-          resource-group: desattir
-    
-    # Create imagepullsecret for Azure Container registry (ACR)
-      - uses: azure/k8s-create-secret@v1
-        with:
-          container-registry-url: batelt-keitz.jfrog.io
-          container-registry-username: ${{ secrets.JF_ARTIFACTORY_USER }}
-          container-registry-password: ${{ secrets.JF_ARTIFACTORY_PASSWORD }}
-          secret-name: demo-k8s-secret
-
-      # Deploy app to AKS
-      - uses: azure/k8s-deploy@v1
-        with:
-          manifests: |
-            manifests/deployment.yml
-            manifests/service.yml
-          images: |
-            demo.azurecr.io/k8sdemo:${{ github.sha }}
-          imagepullsecrets: |
-            demo-k8s-secret
-          # namespace: <optional>
-
