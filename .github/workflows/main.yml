@@ -24,29 +24,3 @@ jobs:
           # Publish build info
           ./jfrog rt bp Keitz_build ${{ github.run_number }}
           
-    # Set the target AKS cluster. 
-      - uses: azure/aks-set-context@v1
-        with:
-          creds: '${{ secrets.AZURE_CREDENTIALS }}'
-          cluster-name: idanaks
-          resource-group: idanaks
-    
-    # Create imagepullsecret for Azure Container registry (ACR)
-      - uses: azure/k8s-create-secret@v1
-        with:
-          container-registry-url: batelt-keitz.jfrog.io
-          container-registry-username: ${{ secrets.JF_ARTIFACTORY_USER }}
-          container-registry-password: ${{ secrets.JF_ARTIFACTORY_PASSWORD }}
-          secret-name: demo-k8s-secret
-
-      # Deploy app to AKS
-      - uses: azure/k8s-deploy@v1
-        with:
-          manifests: |
-            manifests/deployment.yml
-            manifests/service.yml
-          images: |
-            demo.azurecr.io/k8sdemo:${{ github.sha }}
-          imagepullsecrets: |
-            demo-k8s-secret
-          # namespace: <optional>
