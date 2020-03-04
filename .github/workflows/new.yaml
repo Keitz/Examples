@@ -1,1 +1,25 @@
+name: "JFrog CLI Example"
+on: push
 
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup JFrog CLI
+        run: |
+          curl -uadmin:${{ secrets. JF_ARTIFACTORY_PASSWORD}} -LO "https://batelt.jfrog.io/artifactory/art7/jfrog"
+          chmod +x jfrog
+          ./jfrog rt c import ${{ secrets. JF_ARTIFACTORY_SECRET}}
+      - name: Build the docker images
+        run: |
+          docker login batelt-keitz.jfrog.io -u ${{ secrets. JF_ARTIFACTORY_USER}} -p ${{ secrets. JF_ARTIFACTORY_PASSWORD}}
+          docker build . -t  batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo:${{ github.sha }}
+      - name: Run JFrog CLI
+        run: |
+          ./jfrog rt dp batelt-keitz.jfrog.io/keitz/demo.azurecr.io/k8sdemo:${{ github.sha }} keitz --build-name=Keitz_build --build-number=${{ github.run_number }} --skip-login=true
+          # Collect environment variables for the build
+          ./jfrog rt bce Keitz_build ${{ github.run_number }}
+          # Publish build info
+          ./jfrog rt bp Keitz_build ${{ github.run_number }}
